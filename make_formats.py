@@ -1,5 +1,63 @@
 #!/usr/bin/env python
-"""Convert irssi UI formats into C source code."""
+"""Convert irssi UI formats into C source code.
+
+Produces a C header, and a C definition.
+
+Base tokens
+===========
+
+A line starting with "-- " is parsed as a module name. You should only have
+one, probably. And have it at the top of your file.
+
+A line starting with "-> " is parsed as a section header. You should have one
+per section, if that's not obvious. Small scripts generally have only one
+section.
+
+A blank line is ignored.
+
+Any other line is expected to have at least two parts to it - the signature,
+and the format. These are separated by the first space, for example::
+
+    my_format   Woo!
+    my_format Woo!
+
+Are exactly equivalent. (Yes, you can use ASCII tabs as well.)
+
+Signatures
+----------
+
+The signature can be more complicated. Essentially, they try to match a
+nameless generic function definition syntax, where only type matters::
+
+    sb_worlds(int)      {sb I have five worlds: $1}
+
+Etc. The types available are determined by irssi headers, and so I can't make
+an exhaustive list.
+
+Generated code
+==============
+
+Each format ends up as a TXT_<FORMAT_NAME>, where the format's name is
+uppercased. (I'm sorry, I just like that in C.)
+
+These are all defined in an anonymous enum. In the definition, the symbol
+`ui_fmts` is defined as a list of text formats.
+
+You can get the total amount of message formats via the TXT_COUNT symbol, which
+is always the last symbol in mentioned enum.
+
+The type information is really only used in the definition (the .c file), as
+it's excessive in the header -- only used when actually formatting stuff.
+
+The symbol, `ui_fmts`, is what you'll mainly use with the enum contents, for
+example::
+
+    statusbar_item_default_handler(item, get_size_only,
+        ui_fmts[TXT_SB_WORLDS].def, "Moo", FALSE);
+
+The file you'll want to include is the header, because it defines the externed
+symbol as well.
+"""
 
 import sys
 import optparse
