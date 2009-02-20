@@ -10,14 +10,15 @@
 
 #include "hilightwin.h"
 
-static void sig_print_text(TEXT_DEST_REC *dest, const char *text)
+static void sig_print_text(TEXT_DEST_REC *dest, const char *text) {
     /* You say it best... when you say nothing at all. */
+    return;
 }
 
 void hilightwin_init(void) {
     module_register(MODULE_NAME, "core");
 
-    settings_add_bool(MODULE_NAME, "hilightwin_showprivmsg",    true);
+    settings_add_bool(MODULE_NAME, "hilightwin_showprivmsg", TRUE);
     settings_check();
 
     signal_add("print text", (SIGNAL_FUNC)sig_print_text);
