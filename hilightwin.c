@@ -9,7 +9,6 @@
  */
 
 #include "module.h"
-#include "module-formats.h"
 
 #include <core/modules.h>
 #include <core/signals.h>
