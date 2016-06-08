@@ -30,7 +30,7 @@ static void sig_print_text(TEXT_DEST_REC *dest, const char *text) {
 
         if (win == NULL) {
             printtext(dest->server, NULL, MSGLEVEL_CLIENTNOTICE,
-                      "hilightwin cannot find window");
+                      "hilightwin cannot find window with name: " HILIGHTWIN_NAME);
             return;
         }
 
