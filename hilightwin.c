@@ -8,36 +8,36 @@
  * (Gee, I hope there are no licensing issues here.)
  */
 
-#include "module.h"
+#include <irssi/irssi-config.h>
+#include <irssi/irssi-version.h>
 
-#include <core/modules.h>
-#include <core/signals.h>
-#include <core/settings.h>
-#include <core/levels.h>
+#include "common.h"
+#include "core/modules.h"
+#include "core/signals.h"
+#include "core/settings.h"
+#include "core/levels.h"
+#include "fe-common/core/printtext.h"
 
-#include <fe-common/core/printtext.h>
-
+#define MODULE_NAME "hilightwin"
 #define HILIGHTWIN_NAME "hilight"
 
 static void sig_print_text(TEXT_DEST_REC *dest, const char *text) {
-    /* TODO Move this to a static global, so as to remove a function call/line
-            printed. */
     int level = settings_get_level("hilightwin_level");
+    WINDOW_REC *win = window_find_name(HILIGHTWIN_NAME);
 
-    if ((dest->level & level) && !(dest->level & MSGLEVEL_NOHILIGHT)) {
-        WINDOW_REC *win = window_find_name(HILIGHTWIN_NAME);
-        TEXT_DEST_REC new_dest;
-
-        if (win == NULL) {
-            printtext(dest->server, NULL, MSGLEVEL_CLIENTNOTICE,
-                      "hilightwin cannot find window with name: " HILIGHTWIN_NAME);
-            return;
-        }
-
-        /* TODO Some context would be nice, I guess... */
-        printtext_window(win, MSGLEVEL_NOHILIGHT | dest->level,
-                         "%s/%s: %s", dest->server_tag, dest->target, text);
+    if (!(dest->level & level) || (dest->level & MSGLEVEL_NOHILIGHT)) {
+        return;
     }
+
+    if (win == NULL) {
+        printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+                  "hilightwin cannot find window with name: %s",
+                  HILIGHTWIN_NAME);
+        return;
+    }
+
+    printtext_window(win, MSGLEVEL_NOHILIGHT | dest->level,
+                     "%s/%s: %s", dest->server_tag, dest->target, text);
 }
 
 void hilightwin_init(void) {
@@ -47,6 +47,9 @@ void hilightwin_init(void) {
     settings_check();
 
     signal_add("print text", (SIGNAL_FUNC)sig_print_text);
+
+    printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+              "%s loaded for %s", MODULE_NAME, PACKAGE_STRING);
 }
 
 void hilightwin_deinit(void) {
